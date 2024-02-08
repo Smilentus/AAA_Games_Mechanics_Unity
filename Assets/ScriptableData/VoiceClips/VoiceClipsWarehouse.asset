@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3265f2ef5c01584cbcf9b5c0c54df87, type: 3}
+  m_Name: VoiceClipsWarehouse
+  m_EditorClassIdentifier: 
+  m_voiceClipData:
+  - {fileID: 11400000, guid: 94ff61dc1628c0d418870c0a3f263985, type: 2}
+  - {fileID: 11400000, guid: 8bb8bfe444f53bf40b0dddfe0fe35a62, type: 2}
+  - {fileID: 11400000, guid: 0c3cfc8e21193a241b51ac8cf4072fe7, type: 2}
