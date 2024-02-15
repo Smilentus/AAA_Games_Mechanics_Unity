@@ -1,13 +1,16 @@
 using UnityEngine;
 
 
-public class FirstPersonControllerPossessable : BasePossessableEntity
+public class FirstPersonControllerPossessable : NetworkPossessableEntity
 {
     [SerializeField]
     private FirstPersonInputHandler m_firstInputHandler;
 
     [SerializeField]
     private Camera m_fpvCamera;
+
+    [SerializeField]
+    private AudioListener m_audioListener;
 
 
     protected override void OnPossess()
@@ -16,6 +19,8 @@ public class FirstPersonControllerPossessable : BasePossessableEntity
 
         m_firstInputHandler.IsReadingInput = true;
         m_fpvCamera.enabled = true;
+        m_audioListener.enabled = true;
+
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -26,6 +31,8 @@ public class FirstPersonControllerPossessable : BasePossessableEntity
 
         m_firstInputHandler.IsReadingInput = false;
         m_fpvCamera.enabled = false;
+        m_audioListener.enabled = false;
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }

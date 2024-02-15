@@ -1,8 +1,9 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-public class FirstPersonInputHandler : MonoBehaviour
+public class FirstPersonInputHandler : NetworkBehaviour
 {
     [SerializeField]
     private FirstPersonController m_firstPersonController;
@@ -53,6 +54,8 @@ public class FirstPersonInputHandler : MonoBehaviour
 
     private void Update()
     {
+        if (!IsLocalPlayer) return;
+
         if (IsReadingInput)
         {
             m_firstPersonController.HandleMoveInput(m_movementAction.action.ReadValue<Vector2>());

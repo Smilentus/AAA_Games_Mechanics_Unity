@@ -26,13 +26,25 @@ public class DebugNetworkPlayerObject : NetworkBehaviour
     {
         Debug.Log("Player OnNetworkSpawn");
 
-        if (IsLocalPlayer)
-        {
-            Instantiate(m_localPlayerPrefab, this.transform);
-        }
-        else
-        {
-            Instantiate(m_nonLocalPlayerPrefab, this.transform);
-        }
+        //GameObject instantiatedPlayerController;
+
+        //if (IsLocalPlayer)
+        //{
+        //    instantiatedPlayerController = Instantiate(m_localPlayerPrefab, this.transform);
+        //}
+        //else
+        //{
+        //    instantiatedPlayerController = Instantiate(m_nonLocalPlayerPrefab, this.transform);
+        //}
+
+        //instantiatedPlayerController.transform.SetParent(this.transform);
+
+        //if (IsServer)
+        //{
+        //    if (instantiatedPlayerController.TryGetComponent<NetworkObject>(out NetworkObject playerNetworkObject))
+        //    {
+        //        playerNetworkObject.SpawnAsPlayerObject(OwnerClientId);
+        //    }
+        //}
     }
 }
