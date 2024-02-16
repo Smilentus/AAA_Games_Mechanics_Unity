@@ -18,10 +18,6 @@ public class NetworkPossessableEntity : NetworkBehaviour, IPossessableEntity
         if (IsPossessed) return;
 
         SyncPossessionOnServerRpc(true);
-
-        OnPossess();
-
-        onPossessedEvent?.Invoke();
     }
 
     public virtual void PhaseOut()
@@ -29,17 +25,38 @@ public class NetworkPossessableEntity : NetworkBehaviour, IPossessableEntity
         if (!IsPossessed) return;
 
         SyncPossessionOnServerRpc(false);
-
-        OnPhaseOut();
-
-        onPhasedOutEvent?.Invoke();
     }
 
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     protected void SyncPossessionOnServerRpc(bool _isPossessed)
     {
         isPossessed.Value = _isPossessed;
+
+        if (isPossessed.Value)
+        {
+            OnSyncPossesAtClientRpc();
+        }
+        else
+        {
+            OnSyncPhaseOutAtClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    protected void OnSyncPossesAtClientRpc()
+    {
+        OnPossess();
+
+        onPossessedEvent?.Invoke();
+    }
+
+    [ClientRpc]
+    protected void OnSyncPhaseOutAtClientRpc()
+    {
+        OnPhaseOut();
+
+        onPhasedOutEvent?.Invoke();
     }
 
 

@@ -1,7 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 
 
-public class FirstPersonControllerPossessable : NetworkPossessableEntity
+public class FirstPersonControllerClientSide : NetworkBehaviour
 {
     [SerializeField]
     private FirstPersonInputHandler m_firstInputHandler;
@@ -13,10 +14,25 @@ public class FirstPersonControllerPossessable : NetworkPossessableEntity
     private AudioListener m_audioListener;
 
 
-    protected override void OnPossess()
+    public override void OnNetworkSpawn()
     {
-        Debug.Log($"Possess SimpleControllablePossessable => {this.gameObject}");
+        if (IsLocalPlayer)
+        {
+            EnableController();
+        }
+    }
 
+    public override void OnNetworkDespawn()
+    {
+        if (IsLocalPlayer)
+        {
+            DisableController();
+        }
+    }
+
+
+    public void EnableController()
+    {
         m_firstInputHandler.IsReadingInput = true;
         m_fpvCamera.enabled = true;
         m_audioListener.enabled = true;
@@ -25,10 +41,8 @@ public class FirstPersonControllerPossessable : NetworkPossessableEntity
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    protected override void OnPhaseOut()
+    public void DisableController()
     {
-        Debug.Log($"OnPhaseOut SimpleControllablePossessable => {this.gameObject}");
-
         m_firstInputHandler.IsReadingInput = false;
         m_fpvCamera.enabled = false;
         m_audioListener.enabled = false;
