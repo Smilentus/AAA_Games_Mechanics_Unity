@@ -37,6 +37,7 @@ public class NetworkVehicleObject : NetworkBehaviour
                 if (vehicleSeatObject.TryGetComponent(out NetworkVehicleSeatObject networkVehicleSeatObject))
                 {
                     networkVehicleSeatObject.SetPlacementPoint(vehicleSeatSettings.VehicleSeatPlacementPoint);
+                    networkVehicleSeatObject.SetLeavePoint(vehicleSeatSettings.VehicleSeatLeavePoint);
                 }
 
                 if (vehicleSeatObject.TryGetComponent(out NetworkObject networkSeatObject))
@@ -57,6 +58,7 @@ public class NetworkVehicleObject : NetworkBehaviour
 public class VehicleSeatSettings
 {
     public Transform VehicleSeatPlacementPoint;
+    public Transform VehicleSeatLeavePoint;
 
     public VehicleSeatProfile VehicleSeatProfile;
 }

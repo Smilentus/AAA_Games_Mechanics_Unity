@@ -5202,6 +5202,7 @@ GameObject:
   - component: {fileID: 2611692611941619734}
   - component: {fileID: 9159598882559262188}
   - component: {fileID: 4409756165949358884}
+  - component: {fileID: 3245834504211581264}
   m_Layer: 0
   m_Name: FPS
   m_TagString: Untagged
@@ -5363,6 +5364,19 @@ MonoBehaviour:
   m_interactButton: {fileID: -9022150340045525563, guid: 8f57fb60c029f7d469e6bb5ad3c12e56, type: 3}
   m_interactionDistance: 3
   m_isAllowedToInteractAtAwake: 1
+--- !u!114 &3245834504211581264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9188536832783195583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7da32c98b162c744c8caca9844310fea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshRenderer: {fileID: 1367657246047729245}
 --- !u!1001 &5556610312538343779
 PrefabInstance:
   m_ObjectHideFlags: 0

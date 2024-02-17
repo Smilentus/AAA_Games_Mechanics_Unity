@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,13 +7,13 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     [field: SerializeField]
     public VehicleSeatProfile AttachedVehicleSeatProfile;
 
-
     private NetworkVariable<bool> IsOccupied = new NetworkVariable<bool>();
     public ulong OccupiedOwnerID => NetworkObject.OwnerClientId;
 
 
     private NetworkVehicleObject attachedVehicleObject;
     private Transform placementPoint;
+    private Transform leavePoint;
 
 
     public override void OnNetworkSpawn()
@@ -58,6 +56,11 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
         placementPoint = _placementPoint;
     }
 
+    public void SetLeavePoint(Transform _leavePoint)
+    {
+        leavePoint = _leavePoint;
+    }
+
 
     public virtual void TryInteractWithSeat(ulong ownerClientId)
     {
@@ -73,7 +76,7 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
             Debug.Log($"Кресло уже занято");
             if (ownerClientId == NetworkObject.OwnerClientId)
             {
-                Debug.Log($"Освобождаем кресло, т.к. оно занято тем, кто с ним взаимодействует");
+                Debug.Log($"Освобождаем кресло, т.к. оно занято тем, кто с ним взаимодействует {ownerClientId}");
                 LeaveFromPlaceAtServerRpc(ownerClientId);
             }
             else
@@ -83,7 +86,7 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
         }
         else
         {
-            Debug.Log($"Кресло занял новый человек!");
+            Debug.Log($"Кресло занял новый человек! {ownerClientId}");
             OccupySeatAtServerRpc(ownerClientId);
         }
     }
@@ -96,7 +99,10 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
 
         IsOccupied.Value = false;
 
-        OnSeatLeftByClientRpc();
+        NetworkManager.ConnectedClients[ownerClientId].PlayerObject.transform.SetPositionAndRotation(leavePoint.position, Quaternion.identity);
+        NetworkManager.ConnectedClients[ownerClientId].PlayerObject.TryRemoveParent();
+
+        OnSeatLeftByClientRpc(ownerClientId);
     }
 
 
@@ -107,6 +113,9 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
 
         IsOccupied.Value = true;
 
+        NetworkManager.ConnectedClients[ownerClientId].PlayerObject.transform.SetPositionAndRotation(placementPoint.position, Quaternion.identity);
+        NetworkManager.ConnectedClients[ownerClientId].PlayerObject.TrySetParent(this.transform);
+
         OnSeatOccupiedByClientRpc(ownerClientId);
     }
 
@@ -114,14 +123,22 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     [ClientRpc]
     public void OnSeatOccupiedByClientRpc(ulong ownerClientId)
     {
-        
+        if (NetworkObject.OwnerClientId == ownerClientId)
+        {
+
+        }
     }
+
 
     [ClientRpc]
-    public void OnSeatLeftByClientRpc()
+    public void OnSeatLeftByClientRpc(ulong ownerClientId)
     {
+        if (NetworkObject.OwnerClientId == ownerClientId)
+        {
 
+        }
     }
+
 
     public void InteractWithObject(ulong ownerClientId)
     {
@@ -132,7 +149,7 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
 
     public void OnInteractableSelectionStarted()
     {
-        
+
     }
 
     public void OnInteractableSelectionEnded()
