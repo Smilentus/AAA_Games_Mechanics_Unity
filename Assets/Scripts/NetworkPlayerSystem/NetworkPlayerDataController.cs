@@ -24,7 +24,7 @@ public class NetworkPlayerDataController : NetworkBehaviour
         int playerIndex = -1;
 
         int i = 0;
-        // Костыль для тестов, потом по Approval будет связть
+        // Костыль для тестов, потом по Approval будет связать
         foreach (var client in NetworkManager.ConnectedClients.Values)
         {
             if (client.ClientId == NetworkObject.OwnerClientId)

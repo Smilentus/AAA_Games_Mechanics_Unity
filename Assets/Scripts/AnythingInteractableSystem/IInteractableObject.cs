@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface IInteractableObject
-{
+{ 
     public void InteractWithObject(ulong ownerClientId);
 
 

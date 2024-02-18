@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -7,6 +8,10 @@ using UnityEngine.InputSystem;
 
 public class FirstPersonRayInteractor : NetworkBehaviour
 {
+    public event Action onInteractableSelectionStarted;
+    public event Action onInteractableSelectionEnded;
+
+
     [SerializeField]
     private Transform m_raycastingPoint;
 
@@ -28,6 +33,8 @@ public class FirstPersonRayInteractor : NetworkBehaviour
 
 
     private IInteractableObject selectedInteractable;
+    public IInteractableObject SelectedInteractable => selectedInteractable;
+
 
 
     private void Awake()
@@ -104,6 +111,8 @@ public class FirstPersonRayInteractor : NetworkBehaviour
 
         selectedInteractable.OnInteractableSelectionStarted();
 
+        onInteractableSelectionStarted?.Invoke();
+
         Debug.Log($"OnSelectionStarted");
     }
 
@@ -114,6 +123,7 @@ public class FirstPersonRayInteractor : NetworkBehaviour
         selectedInteractable.OnInteractableSelectionEnded();
         selectedInteractable = null;
 
+        onInteractableSelectionEnded?.Invoke();
         Debug.Log($"OnSelectionEnded");
     }
 }

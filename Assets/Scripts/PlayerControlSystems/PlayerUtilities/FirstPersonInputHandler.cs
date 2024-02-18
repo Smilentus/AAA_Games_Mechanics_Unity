@@ -35,8 +35,12 @@ public class FirstPersonInputHandler : NetworkBehaviour
     public bool IsReadingInput { get; set; }
 
 
+    public bool RestrictMovements { get; set; }
+    public bool RestrictLooks { get; set; }
+
+
     private Vector2 LookVector => new Vector2(
-        m_lookAction.action.ReadValue<Vector2>().x * m_mouseSensitivityX, 
+        m_lookAction.action.ReadValue<Vector2>().x * m_mouseSensitivityX,
         m_lookAction.action.ReadValue<Vector2>().y * m_mouseSensitivityY
     );
 
@@ -58,10 +62,17 @@ public class FirstPersonInputHandler : NetworkBehaviour
 
         if (IsReadingInput)
         {
-            m_firstPersonController.HandleMoveInput(m_movementAction.action.ReadValue<Vector2>());
-            m_firstPersonController.HandleLookInput(LookVector);
-            m_firstPersonController.HandleZoomInput(ZoomInput);
-            m_firstPersonController.HandleCrouchInput(m_crouchAction.action.WasPerformedThisFrame());
+            if (!RestrictMovements)
+            {
+                m_firstPersonController.HandleMoveInput(m_movementAction.action.ReadValue<Vector2>());
+                m_firstPersonController.HandleCrouchInput(m_crouchAction.action.WasPerformedThisFrame());
+            }
+
+            if (!RestrictLooks)
+            {
+                m_firstPersonController.HandleLookInput(LookVector);
+                m_firstPersonController.HandleZoomInput(ZoomInput);
+            }
         }
         else
         {

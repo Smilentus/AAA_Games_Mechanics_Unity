@@ -125,7 +125,10 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     {
         if (NetworkObject.OwnerClientId == ownerClientId)
         {
-
+            if (NetworkManager.ConnectedClients[ownerClientId].PlayerObject.TryGetComponent<FirstPersonInputHandler>(out FirstPersonInputHandler playerController))
+            {
+                playerController.RestrictMovements = true;
+            }
         }
     }
 
@@ -135,7 +138,10 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     {
         if (NetworkObject.OwnerClientId == ownerClientId)
         {
-
+            if (NetworkManager.ConnectedClients[ownerClientId].PlayerObject.TryGetComponent<FirstPersonInputHandler>(out FirstPersonInputHandler playerController))
+            {
+                playerController.RestrictMovements = false;
+            }
         }
     }
 
