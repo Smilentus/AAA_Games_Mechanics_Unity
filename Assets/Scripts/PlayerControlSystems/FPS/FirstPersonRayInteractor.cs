@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -109,7 +107,7 @@ public class FirstPersonRayInteractor : NetworkBehaviour
 
         if (selectedInteractable == null) return;
 
-        selectedInteractable.OnInteractableSelectionStarted();
+        selectedInteractable.OnSelectionStarted();
 
         onInteractableSelectionStarted?.Invoke();
 
@@ -120,7 +118,7 @@ public class FirstPersonRayInteractor : NetworkBehaviour
     {
         if (selectedInteractable == null) return;
 
-        selectedInteractable.OnInteractableSelectionEnded();
+        selectedInteractable.OnSelectionEnded();
         selectedInteractable = null;
 
         onInteractableSelectionEnded?.Invoke();

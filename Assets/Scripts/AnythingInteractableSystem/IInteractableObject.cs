@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public interface IInteractableObject
 { 
+    public bool CanInteract { get; set; }
+
+
     public void InteractWithObject(ulong ownerClientId);
 
 
-    public void OnInteractableSelectionStarted();
-    public void OnInteractableSelectionEnded();
+    public void OnSelectionStarted();
+    public void OnSelectionEnded();
 }

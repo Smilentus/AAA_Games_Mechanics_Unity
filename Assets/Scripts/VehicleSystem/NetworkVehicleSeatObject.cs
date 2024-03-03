@@ -11,6 +11,9 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     public ulong OccupiedOwnerID => NetworkObject.OwnerClientId;
 
 
+    public bool CanInteract { get; set; } // TODO: ...
+
+
     private NetworkVehicleObject attachedVehicleObject;
     private Transform placementPoint;
     private Transform leavePoint;
@@ -153,13 +156,6 @@ public class NetworkVehicleSeatObject : NetworkBehaviour, IInteractableObject
     }
 
 
-    public void OnInteractableSelectionStarted()
-    {
-
-    }
-
-    public void OnInteractableSelectionEnded()
-    {
-
-    }
+    public void OnSelectionStarted() { }
+    public void OnSelectionEnded() { }
 }
