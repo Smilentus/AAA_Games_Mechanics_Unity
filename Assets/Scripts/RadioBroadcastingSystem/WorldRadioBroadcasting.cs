@@ -17,6 +17,9 @@ public class WorldRadioBroadcasting : MonoBehaviour
     public float FreqSettings = 0.05f;
     public float RadioFrequency = 65;
 
+    [Range(0, 1)]
+    public float RadioVolume = 1f;
+    
     private RuntimeWorldRadioStation syncedWorldRadioStation;
 
 
@@ -41,6 +44,16 @@ public class WorldRadioBroadcasting : MonoBehaviour
         {
             RadioFrequency += FreqSettings;
         }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            RadioVolume += 0.05f;
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            RadioVolume -= 0.05f;
+        }
+
+        RadioVolume = Mathf.Clamp01(RadioVolume);
 
         RadioStationSetupData setupData = TrySetUpRadioStationFromFrequency(RadioFrequency);
 
@@ -51,12 +64,31 @@ public class WorldRadioBroadcasting : MonoBehaviour
 
         if (setupData.runtimeWorldRadioStation != null)
         {
-            if (syncedWorldRadioStation != null && syncedWorldRadioStation.Equals(setupData.runtimeWorldRadioStation)) return;
+            if (syncedWorldRadioStation != null)
+            {
+                if (syncedWorldRadioStation.Equals(setupData.runtimeWorldRadioStation))
+                {
+                    ProcessCurrentBroadcastingProgram();
+                }
+                else
+                {
+                    UnSubscribeFromRadioStation();
 
-            syncedWorldRadioStation = setupData.runtimeWorldRadioStation;
+                    syncedWorldRadioStation = setupData.runtimeWorldRadioStation;
 
-            SubscribeToRadioStation();
-            ParseCurrentBroadcastingProgram();
+                    SubscribeToRadioStation();
+
+                    ParseCurrentBroadcastingProgram();
+                }
+            }
+            else
+            {
+                syncedWorldRadioStation = setupData.runtimeWorldRadioStation;
+
+                SubscribeToRadioStation();
+
+                ParseCurrentBroadcastingProgram();
+            }
         }
         else
         {
@@ -67,18 +99,18 @@ public class WorldRadioBroadcasting : MonoBehaviour
 
     private void ParseCurrentBroadcastingProgram()
     {
-        BroadcastingProgramData broadcastingProgramData = syncedWorldRadioStation.GetCurrentBroadcastingProgram();
-
         // Тут различные парсеры радио-передач будут
-        if (broadcastingProgramData.broadcastingProgramPart is MusicRadioBroadcastingProgramPart)
+        if (syncedWorldRadioStation.CurrentBroadcastingProgramPart is MusicRadioBroadcastingProgramPart)
         {
-            MusicRadioBroadcastingProgramPart programPart = broadcastingProgramData.broadcastingProgramPart as MusicRadioBroadcastingProgramPart;
+            MusicRadioBroadcastingProgramPart programPart = syncedWorldRadioStation.CurrentBroadcastingProgramPart as MusicRadioBroadcastingProgramPart;
 
             radioAudioSource.Stop();
 
+            PlayableRadioMusicData playableRadioMusicData = programPart.GetPlayableDataByTotalLength(syncedWorldRadioStation.ProgramPartBroadcastingSeconds);
+
             // Тут ещё будем получать временное отклонение, пока мы не слушали радио
-            radioAudioSource.clip = programPart.MusicAudioClips[0];
-            radioAudioSource.time = broadcastingProgramData.generalBroadcastingSeconds;
+            radioAudioSource.clip = playableRadioMusicData.Clip;
+            radioAudioSource.time = playableRadioMusicData.PassedTime;
 
             radioAudioSource.Play();
         }
@@ -89,18 +121,39 @@ public class WorldRadioBroadcasting : MonoBehaviour
         }
     }
 
+    private void ProcessCurrentBroadcastingProgram()
+    {
+        if (syncedWorldRadioStation.CurrentBroadcastingProgramPart is MusicRadioBroadcastingProgramPart)
+        {
+            MusicRadioBroadcastingProgramPart programPart = syncedWorldRadioStation.CurrentBroadcastingProgramPart as MusicRadioBroadcastingProgramPart;
+
+            PlayableRadioMusicData playableRadioMusicData = programPart.GetPlayableDataByTotalLength(syncedWorldRadioStation.ProgramPartBroadcastingSeconds);
+
+            if (radioAudioSource.clip.Equals(playableRadioMusicData.Clip)) return;
+
+            radioAudioSource.Stop();
+
+            // Тут ещё будем получать временное отклонение, пока мы не слушали радио
+            radioAudioSource.clip = playableRadioMusicData.Clip;
+            radioAudioSource.time = playableRadioMusicData.PassedTime;
+
+            radioAudioSource.Play();
+        }
+    }
+
+
     private void SubscribeToRadioStation()
     {
         if (syncedWorldRadioStation == null) return;
 
-        syncedWorldRadioStation.OnBroadcastingProgramChanged += ParseCurrentBroadcastingProgram;
+        syncedWorldRadioStation.OnBroadcastingProgramPartChanged += ParseCurrentBroadcastingProgram;
     }
 
     private void UnSubscribeFromRadioStation()
     {
         if (syncedWorldRadioStation == null) return;
 
-        syncedWorldRadioStation.OnBroadcastingProgramChanged -= ParseCurrentBroadcastingProgram;
+        syncedWorldRadioStation.OnBroadcastingProgramPartChanged -= ParseCurrentBroadcastingProgram;
     }
 
     // End of Debug Area

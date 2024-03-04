@@ -32,4 +32,37 @@ public class MusicRadioBroadcastingProgramPart : BaseRadioBroadcastingProgramPar
 
         return length;
     }
+
+    public PlayableRadioMusicData GetPlayableDataByTotalLength(float passedSeconds)
+    {
+        float clipTime = 0;
+
+        AudioClip outputClip = null;
+        float outputTime = 0;
+
+        foreach (AudioClip clip in m_musicAudioClips)
+        {
+            clipTime += clip.length;
+            
+            if (passedSeconds <= clipTime)
+            {
+                outputTime = passedSeconds - (clipTime - clip.length);
+                outputClip = clip;
+                break;
+            }
+        }
+
+        return new PlayableRadioMusicData()
+        {
+            Clip = outputClip,
+            PassedTime = outputTime
+        };
+    }
+}
+
+[System.Serializable]
+public struct PlayableRadioMusicData
+{
+    public AudioClip Clip;
+    public float PassedTime;
 }

@@ -15,4 +15,6 @@ MonoBehaviour:
   m_programPartTitle: "\u041C\u0443\u0437\u044B\u043A\u0430\u043B\u044C\u043D\u0430\u044F
     \u043F\u0430\u0443\u0437\u0430"
   m_musicAudioClips:
-  - {fileID: 8300000, guid: a96f108e3b3890e46836404def65d15c, type: 3}
+  - {fileID: 8300000, guid: 104a7a34a9a8da441bb5d6fc801d486b, type: 3}
+  - {fileID: 8300000, guid: 30438b3c16665be41b7e156e645fa7c7, type: 3}
+  - {fileID: 8300000, guid: 3c27c2eedccc19b49821386ed17c3ea7, type: 3}

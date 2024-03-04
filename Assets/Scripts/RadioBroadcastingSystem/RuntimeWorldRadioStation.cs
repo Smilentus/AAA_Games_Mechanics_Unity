@@ -5,6 +5,7 @@ using UnityEngine;
 public class RuntimeWorldRadioStation : MonoBehaviour
 {
     public event Action OnBroadcastingProgramChanged;
+    public event Action OnBroadcastingProgramPartChanged;
 
 
     [SerializeField]
@@ -12,46 +13,117 @@ public class RuntimeWorldRadioStation : MonoBehaviour
     public RadioStationProfile RadioStationProfile => m_radioStationProfile;
 
 
-    private float generalBroadcastingSeconds;
-    private float totalBroadcastingSeconds;
+    private float _totalBroadcastingSeconds;
 
 
-    private BaseRadioBroadcastingProgramPart currentBroadcastingProgramPart;
-    private float programBroadcastingSeconds;
+    public RadioBroadcastingProgramProfile CurrentBroadcastingProgram => m_radioStationProfile.BroadcastingPrograms[_currentBroadcastingProgramIndex];
+    public BaseRadioBroadcastingProgramPart CurrentBroadcastingProgramPart => CurrentBroadcastingProgram.ProgramParts[_currentBroadcastingProgramPartIndex];
 
 
-    private bool isBroadcasting;
+    private int _currentBroadcastingProgramIndex;
+    private int _currentBroadcastingProgramPartIndex;
+
+
+    private float _programPartBroadcastingSeconds;
+    public float ProgramPartBroadcastingSeconds => _programPartBroadcastingSeconds;
+
+
+    private bool _isBroadcasting;
 
 
     private void Start()
     {
-        generalBroadcastingSeconds = 0;
         CalculateTotalBroadcastingLength();
         StartBroadcasting();
     }
 
     private void FixedUpdate()
     {
-        if (!isBroadcasting) return;
+        if (!_isBroadcasting) return;
 
-        generalBroadcastingSeconds += Time.fixedDeltaTime;
+        _programPartBroadcastingSeconds += Time.fixedDeltaTime;
 
-        if (generalBroadcastingSeconds >= totalBroadcastingSeconds)
-        {
-            generalBroadcastingSeconds = 0;
-            // debug
-            OnBroadcastingProgramChanged?.Invoke();
-        }
+        CheckAvailablePrograms();
     }
 
 
     private void StartBroadcasting()
     {
-        // debug
-        isBroadcasting = true;
-        currentBroadcastingProgramPart = m_radioStationProfile.BroadcastingPrograms[0].ProgramParts[0];
-        OnBroadcastingProgramChanged?.Invoke();
+        ResetBroadcasting();
+
+        _isBroadcasting = true;
     }
+
+    private void ResetBroadcasting()
+    {
+        if (m_radioStationProfile == null || m_radioStationProfile.BroadcastingPrograms.Count == 0) return;
+
+        _programPartBroadcastingSeconds = 0;
+
+        _currentBroadcastingProgramIndex = 0;
+        _currentBroadcastingProgramPartIndex = 0;
+
+        OnBroadcastingProgramChanged?.Invoke();
+        OnBroadcastingProgramPartChanged?.Invoke();
+    }
+
+    private void CheckAvailablePrograms()
+    {
+        if (_programPartBroadcastingSeconds >= CurrentBroadcastingProgramPart.GetProgramPartSecondsLength())
+        {
+            _programPartBroadcastingSeconds = CurrentBroadcastingProgramPart.GetProgramPartSecondsLength();
+
+            if (IsNextProgramPartAvailable())
+            {
+                // Программа продолжается - запускаем следующую часть программы
+                ApplyNextProgramPart();
+            }
+            else
+            {
+                if (IsNextProgramAvailable())
+                {
+                    // Программа закончилась - свапаем на следующую программу
+                    ApplyNextProgram();
+                }
+                else
+                {
+                    // Программа была последней - запускаем круг радио-вещания по новой
+                    ResetBroadcasting();
+                }
+            }
+        }
+    }
+
+    private bool IsNextProgramPartAvailable()
+    {
+        return _currentBroadcastingProgramPartIndex + 1 < CurrentBroadcastingProgram.ProgramParts.Count;
+    }
+    
+    private void ApplyNextProgramPart()
+    {
+        _currentBroadcastingProgramPartIndex++;
+        _programPartBroadcastingSeconds = 0;
+
+        OnBroadcastingProgramPartChanged?.Invoke();
+    }
+
+
+    private bool IsNextProgramAvailable()
+    {
+        return _currentBroadcastingProgramIndex + 1 < m_radioStationProfile.BroadcastingPrograms.Count;
+    }
+    
+    private void ApplyNextProgram()
+    {
+        _currentBroadcastingProgramIndex++;
+
+        _currentBroadcastingProgramPartIndex = 0;
+        _programPartBroadcastingSeconds = 0;
+
+        OnBroadcastingProgramChanged?.Invoke();
+        OnBroadcastingProgramPartChanged?.Invoke();
+    }
+
 
     public void CalculateTotalBroadcastingLength()
     {
@@ -59,25 +131,12 @@ public class RuntimeWorldRadioStation : MonoBehaviour
 
         foreach (RadioBroadcastingProgramProfile radioBroadcastingProgram in m_radioStationProfile.BroadcastingPrograms)
         {
-            foreach (BaseRadioBroadcastingProgramPart programPart in radioBroadcastingProgram.ProgramParts)
-            {
-                totalSeconds += programPart.GetProgramPartSecondsLength();
-            }
+            totalSeconds += radioBroadcastingProgram.ProgramLength;
         }
 
-        totalBroadcastingSeconds = totalSeconds;
+        _totalBroadcastingSeconds = totalSeconds;
     }
 
-
-    public BroadcastingProgramData GetCurrentBroadcastingProgram()
-    {
-        return new BroadcastingProgramData()
-        {
-            broadcastingProgramPart = currentBroadcastingProgramPart,
-            generalBroadcastingSeconds = generalBroadcastingSeconds,
-            programBroadcastingSeconds = programBroadcastingSeconds
-        };
-    }
 
     public FrequencyComparatorData CompareFrequency(float settingsFrequency)
     {
@@ -117,13 +176,4 @@ public struct FrequencyComparatorData
 {
     public bool isSyncWithStation;
     public float frequencyRatio;
-}
-
-[System.Serializable]
-public struct BroadcastingProgramData
-{
-    public BaseRadioBroadcastingProgramPart broadcastingProgramPart;
-
-    public float generalBroadcastingSeconds;
-    public float programBroadcastingSeconds;
 }
