@@ -2033,7 +2033,7 @@ MonoBehaviour:
   radioAudioSource: {fileID: 1709113440}
   whiteNoiseAudioSource: {fileID: 1709113439}
   FreqSettings: 0.05
-  RadioFrequency: 71
+  RadioFrequency: 72
   RadioVolume: 0.5
 --- !u!82 &1709113439
 AudioSource:

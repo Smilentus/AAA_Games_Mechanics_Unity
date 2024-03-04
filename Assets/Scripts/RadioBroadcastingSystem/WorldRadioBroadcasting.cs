@@ -46,11 +46,11 @@ public class WorldRadioBroadcasting : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.W))
         {
-            RadioVolume += 0.05f;
+            RadioVolume += 0.0500f;
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            RadioVolume -= 0.05f;
+            RadioVolume -= 0.0500f;
         }
 
         RadioVolume = Mathf.Clamp01(RadioVolume);
@@ -60,7 +60,7 @@ public class WorldRadioBroadcasting : MonoBehaviour
         //Debug.Log($"Signal Power {setupData.signalPowerNormalized.ToString("f4")} with radio station {(setupData.runtimeWorldRadioStation == null ? "Unknown" : setupData.runtimeWorldRadioStation.RadioStationProfile.StationTitle)}");
 
         whiteNoiseAudioSource.volume = (1 - setupData.signalPowerNormalized) * 0.5f;
-        radioAudioSource.volume = setupData.signalPowerNormalized;
+        radioAudioSource.volume = Mathf.Clamp01(setupData.signalPowerNormalized * RadioVolume);
 
         if (setupData.runtimeWorldRadioStation != null)
         {
@@ -78,7 +78,7 @@ public class WorldRadioBroadcasting : MonoBehaviour
 
                     SubscribeToRadioStation();
 
-                    ParseCurrentBroadcastingProgram();
+                    ProcessCurrentBroadcastingProgram();
                 }
             }
             else
@@ -87,7 +87,7 @@ public class WorldRadioBroadcasting : MonoBehaviour
 
                 SubscribeToRadioStation();
 
-                ParseCurrentBroadcastingProgram();
+                ProcessCurrentBroadcastingProgram();
             }
         }
         else
@@ -97,16 +97,17 @@ public class WorldRadioBroadcasting : MonoBehaviour
         }
     }
 
-    private void ParseCurrentBroadcastingProgram()
+    private void ProcessCurrentBroadcastingProgram()
     {
-        // Тут различные парсеры радио-передач будут
         if (syncedWorldRadioStation.CurrentBroadcastingProgramPart is MusicRadioBroadcastingProgramPart)
         {
             MusicRadioBroadcastingProgramPart programPart = syncedWorldRadioStation.CurrentBroadcastingProgramPart as MusicRadioBroadcastingProgramPart;
 
-            radioAudioSource.Stop();
-
             PlayableRadioMusicData playableRadioMusicData = programPart.GetPlayableDataByTotalLength(syncedWorldRadioStation.ProgramPartBroadcastingSeconds);
+
+            if (radioAudioSource.clip != null && radioAudioSource.clip.Equals(playableRadioMusicData.Clip)) return;
+
+            radioAudioSource.Stop();
 
             // Тут ещё будем получать временное отклонение, пока мы не слушали радио
             radioAudioSource.clip = playableRadioMusicData.Clip;
@@ -121,39 +122,19 @@ public class WorldRadioBroadcasting : MonoBehaviour
         }
     }
 
-    private void ProcessCurrentBroadcastingProgram()
-    {
-        if (syncedWorldRadioStation.CurrentBroadcastingProgramPart is MusicRadioBroadcastingProgramPart)
-        {
-            MusicRadioBroadcastingProgramPart programPart = syncedWorldRadioStation.CurrentBroadcastingProgramPart as MusicRadioBroadcastingProgramPart;
-
-            PlayableRadioMusicData playableRadioMusicData = programPart.GetPlayableDataByTotalLength(syncedWorldRadioStation.ProgramPartBroadcastingSeconds);
-
-            if (radioAudioSource.clip.Equals(playableRadioMusicData.Clip)) return;
-
-            radioAudioSource.Stop();
-
-            // Тут ещё будем получать временное отклонение, пока мы не слушали радио
-            radioAudioSource.clip = playableRadioMusicData.Clip;
-            radioAudioSource.time = playableRadioMusicData.PassedTime;
-
-            radioAudioSource.Play();
-        }
-    }
-
 
     private void SubscribeToRadioStation()
     {
         if (syncedWorldRadioStation == null) return;
 
-        syncedWorldRadioStation.OnBroadcastingProgramPartChanged += ParseCurrentBroadcastingProgram;
+        syncedWorldRadioStation.OnBroadcastingProgramPartChanged += ProcessCurrentBroadcastingProgram;
     }
 
     private void UnSubscribeFromRadioStation()
     {
         if (syncedWorldRadioStation == null) return;
 
-        syncedWorldRadioStation.OnBroadcastingProgramPartChanged -= ParseCurrentBroadcastingProgram;
+        syncedWorldRadioStation.OnBroadcastingProgramPartChanged -= ProcessCurrentBroadcastingProgram;
     }
 
     // End of Debug Area
