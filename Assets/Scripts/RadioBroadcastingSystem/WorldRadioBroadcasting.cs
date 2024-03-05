@@ -4,140 +4,24 @@ using UnityEngine;
 
 public class WorldRadioBroadcasting : MonoBehaviour
 {
+    private static WorldRadioBroadcasting _instance;
+    public static WorldRadioBroadcasting Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<WorldRadioBroadcasting>();
+            }
+
+            return _instance;
+        }
+    }
+
+
     [SerializeField]
     private List<RuntimeWorldRadioStation> m_runtimeWorldRadioStations = new List<RuntimeWorldRadioStation>();
     public List<RuntimeWorldRadioStation> RuntimeWorldRadioStations => m_runtimeWorldRadioStations;
-
-
-    // Debug Area
-
-    public AudioSource radioAudioSource;
-    public AudioSource whiteNoiseAudioSource;
-
-    public float FreqSettings = 0.05f;
-    public float RadioFrequency = 65;
-
-    [Range(0, 1)]
-    public float RadioVolume = 1f;
-    
-    private RuntimeWorldRadioStation syncedWorldRadioStation;
-
-
-    private void Start()
-    {
-        whiteNoiseAudioSource.Play();
-    }
-
-    private void OnDestroy()
-    {
-        UnSubscribeFromRadioStation();
-    }
-
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            RadioFrequency -= FreqSettings;
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            RadioFrequency += FreqSettings;
-        }
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            RadioVolume += 0.0500f;
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            RadioVolume -= 0.0500f;
-        }
-
-        RadioVolume = Mathf.Clamp01(RadioVolume);
-
-        RadioStationSetupData setupData = TrySetUpRadioStationFromFrequency(RadioFrequency);
-
-        //Debug.Log($"Signal Power {setupData.signalPowerNormalized.ToString("f4")} with radio station {(setupData.runtimeWorldRadioStation == null ? "Unknown" : setupData.runtimeWorldRadioStation.RadioStationProfile.StationTitle)}");
-
-        whiteNoiseAudioSource.volume = (1 - setupData.signalPowerNormalized) * 0.5f;
-        radioAudioSource.volume = Mathf.Clamp01(setupData.signalPowerNormalized * RadioVolume);
-
-        if (setupData.runtimeWorldRadioStation != null)
-        {
-            if (syncedWorldRadioStation != null)
-            {
-                if (syncedWorldRadioStation.Equals(setupData.runtimeWorldRadioStation))
-                {
-                    ProcessCurrentBroadcastingProgram();
-                }
-                else
-                {
-                    UnSubscribeFromRadioStation();
-
-                    syncedWorldRadioStation = setupData.runtimeWorldRadioStation;
-
-                    SubscribeToRadioStation();
-
-                    ProcessCurrentBroadcastingProgram();
-                }
-            }
-            else
-            {
-                syncedWorldRadioStation = setupData.runtimeWorldRadioStation;
-
-                SubscribeToRadioStation();
-
-                ProcessCurrentBroadcastingProgram();
-            }
-        }
-        else
-        {
-            UnSubscribeFromRadioStation();
-            syncedWorldRadioStation = null;
-        }
-    }
-
-    private void ProcessCurrentBroadcastingProgram()
-    {
-        if (syncedWorldRadioStation.CurrentBroadcastingProgramPart is MusicRadioBroadcastingProgramPart)
-        {
-            MusicRadioBroadcastingProgramPart programPart = syncedWorldRadioStation.CurrentBroadcastingProgramPart as MusicRadioBroadcastingProgramPart;
-
-            PlayableRadioMusicData playableRadioMusicData = programPart.GetPlayableDataByTotalLength(syncedWorldRadioStation.ProgramPartBroadcastingSeconds);
-
-            if (radioAudioSource.clip != null && radioAudioSource.clip.Equals(playableRadioMusicData.Clip)) return;
-
-            radioAudioSource.Stop();
-
-            // Тут ещё будем получать временное отклонение, пока мы не слушали радио
-            radioAudioSource.clip = playableRadioMusicData.Clip;
-            radioAudioSource.time = playableRadioMusicData.PassedTime;
-
-            radioAudioSource.Play();
-        }
-        else
-        {
-            radioAudioSource.Stop();
-            radioAudioSource.clip = null;
-        }
-    }
-
-
-    private void SubscribeToRadioStation()
-    {
-        if (syncedWorldRadioStation == null) return;
-
-        syncedWorldRadioStation.OnBroadcastingProgramPartChanged += ProcessCurrentBroadcastingProgram;
-    }
-
-    private void UnSubscribeFromRadioStation()
-    {
-        if (syncedWorldRadioStation == null) return;
-
-        syncedWorldRadioStation.OnBroadcastingProgramPartChanged -= ProcessCurrentBroadcastingProgram;
-    }
-
-    // End of Debug Area
 
 
     public RadioStationSetupData TrySetUpRadioStationFromFrequency(float settingsFrequency)
