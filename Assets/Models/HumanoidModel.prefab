@@ -91,10 +91,22 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3853268898807207900, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d46b8e2d1a224f4b9b769c70f265fb3, type: 2}
     - target: {fileID: 5866666021909216657, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 139e8d4de7ffc99469e702a28af5350c, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6148737315974723067, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d46b8e2d1a224f4b9b769c70f265fb3, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -118,6 +130,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6027131728364947735}
   m_SourcePrefab: {fileID: 100100000, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
+--- !u!95 &2778218731183056429 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
+  m_PrefabInstance: {fileID: 8639208787363765180}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8101443445249113175 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 319adac0c02262b448871d87d8c8e3dc, type: 3}
@@ -264,12 +281,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 2
-  SprintSpeed: 5.335
-  RotationSmoothTime: 0.12
-  SpeedChangeRate: 10
-  LandingAudioClip: {fileID: 8300000, guid: ff697d3070687ce4583faa0561a145a2, type: 3}
-  FootstepAudioClips:
+  m_strafingSpeed: 1
+  m_walkingSpeed: 2
+  m_sprintSpeed: 5.335
+  m_jumpHeight: 1.2
+  m_gravity: -9.8
+  m_jumpTimeout: 0.5
+  m_fallTimeOut: 0.15
+  m_landingAudioClip: {fileID: 8300000, guid: ff697d3070687ce4583faa0561a145a2, type: 3}
+  m_footstepsAudioClips:
   - {fileID: 8300000, guid: 72f526a6a9890f643a88e85a61c86c8a, type: 3}
   - {fileID: 8300000, guid: 85016e0f2b01da248b9663dd49a161b0, type: 3}
   - {fileID: 8300000, guid: 186de84b3207156479abe98f4958fed0, type: 3}
@@ -280,22 +300,26 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 67c8b33e424ccdc4486edf538ab91c5a, type: 3}
   - {fileID: 8300000, guid: 274649b0e221539409070ebf6c18918b, type: 3}
   - {fileID: 8300000, guid: a3194b8bbc96ef84fab1f98f4b7dae3e, type: 3}
-  FootstepAudioVolume: 0.3
-  JumpHeight: 1.2
-  Gravity: -15
-  JumpTimeout: 0.3
-  FallTimeout: 0.15
-  Grounded: 1
-  GroundedOffset: -0.14
-  GroundedRadius: 0.28
-  GroundLayers:
+  m_footstepAudioVolume: 0.5
+  m_groundedOffset: -0.14
+  m_groundedRadius: 0.28
+  m_groundLayers:
     serializedVersion: 2
     m_Bits: 1
-  CinemachineCameraTarget: {fileID: 4126509938823501765}
-  TopClamp: 70
-  BottomClamp: -30
-  CameraAngleOverride: 0
-  LockCameraPosition: 0
+  _cineCamera: {fileID: 0}
+  m_cinemachineCameraTarget: {fileID: 4126509938823501765}
+  m_topClamp: 70
+  m_bottomClamp: -30
+  m_cameraAngleOverride: 0
+  m_cameraVerticalSens: 5
+  m_cameraHorizontalSens: 5
+  m_strafingCameraSpeed: 3
+  m_lockCameraPosition: 0
+  m_playerInput: {fileID: 3242776539222466005}
+  m_animator: {fileID: 2778218731183056429}
+  m_controller: {fileID: 9098395681358713355}
+  m_input: {fileID: 6027131728364947735}
+  m_mainCamera: {fileID: 0}
 --- !u!114 &770144661700170507
 MonoBehaviour:
   m_ObjectHideFlags: 0
